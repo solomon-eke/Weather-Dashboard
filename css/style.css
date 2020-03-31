@@ -1,0 +1,8 @@
+.dashboard {
+  background-color: black;
+  color: white;
+}
+
+#uv-index {
+  width: 15%;
+}

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <!-- Load icon library -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+    <link href="./css/owfont-regular.css" rel="stylesheet" type="text/css" />
+    <title>Weather App</title>
+  </head>
+  <body>
+    <script src="./js/moment.js"></script>
+    <section>
+      <div class="row">
+        <div class="col dashboard" style="text-align: center;">
+          <h1>Weather Dash board</h1>
+        </div>
+      </div>
+    </section>
+
+    <section class="">
+      <!-- The form -->
+      <div class="container row mt-3 mb-3">
+        <div class="container-fluid col-3 sm md lg">
+          <form class="" action="">
+            <label for="userInput">Search for a city:</label>
+            <br />
+            <!-- We'll get the title for the new button from this input -->
+            <input type="text" class="sm md-3 lg-3" id="userInput" />
+            <!-- Button triggers new city to be added -->
+            <button id="addCity" class="btn btn-primary sm md-6 lg-6">
+              <i class="fa fa-search"></i>
+            </button>
+          </form>
+
+          <!-- Searched city buttons will get added here -->
+          <div id="city-viewed"></div>
+          <!-- <button id="clear" class="btn btn-danger">Clear all</button>-->
+        </div>
+
+        <div class="col-9 sm md lg card">
+          <div class="card-body">
+            <h5 class="card-title" id="result"></h5>
+            <p class="card-text" id="temperature"></p>
+            <p class="card-text" id="humidity"></p>
+            <p class="card-text" id="wind-speed"></p>
+            <p class="card-text" id="uv-index"></p>
+          </div>
+          <p>
+            <span class="" id="focast" style="display:none;"
+              >5 days focast:
+            </span>
+          </p>
+
+          <div class="row">
+            <div
+              class="col mx-1 btn btn-primary"
+              style="display:none;"
+              id="first"
+            >
+              <div id="dayOne"></div>
+              <div id="firstDayIcon"></div>
+              <div id="firstDayTemperature"></div>
+              <div id="firstDayHumidity"></div>
+            </div>
+            <div
+              class="col mx-1 btn btn-primary"
+              style="display:none;"
+              id="second"
+            >
+              <div id="dayTwo"></div>
+              <div id="secondDayIcon"></div>
+              <div id="secondDayTemperature"></div>
+              <div id="secondDayHumidity"></div>
+            </div>
+            <div
+              class="col mx-1 btn btn-primary"
+              style="display:none;"
+              id="third"
+            >
+              <div id="dayThree"></div>
+              <div id="thirdDayIcon"></div>
+              <div id="thirdDayTemperature"></div>
+              <div id="thirdDayHumidity"></div>
+            </div>
+            <div
+              class="col mx-1 btn btn-primary"
+              style="display:none;"
+              id="fourth"
+            >
+              <div id="dayFour"></div>
+              <div id="fourthDayIcon"></div>
+              <div id="fourthDayTemperature"></div>
+              <div id="fourthDayHumidity"></div>
+            </div>
+            <div
+              class="col mx-1 btn btn-primary"
+              style="display:none;"
+              id="fifth"
+            >
+              <div id="dayFive"></div>
+              <div id="fifthDayIcon"></div>
+              <div id="fifthDayTemperature"></div>
+              <div id="fifthDayHumidity"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script>
+      let currentDate = moment().format("dddd MMMM YYYY, h:mm:ss a");
+      // Initial array of city searched
+      let citySearched = JSON.parse(localStorage.getItem("citySearched"));
+      if (citySearched === null) {
+        citySearched = [];
+      }
+      // Call the renderListOfCity function to display the initial list of cities, if there are any
+      renderListOfCity();
+
+      // Function for displaying city buttons
+      function displayCityInfo() {
+        //title = this.getAttribute("city-title");
+        let title = document.getElementById("userInput").value.trim();
+        //title = this.getAttribute("city-title");
+        let apiKey = "9d1ed7a3283bdd5ad280c6313828f1ed";
+        let queryURL = `https://api.openweathermap.org/data/2.5/weather?q=${title}&appid=${apiKey}`;
+
+        //const url = `https://api.openweathermap.org/data/2.5/weather?q=${title}&appid=${apiKey}&units=metric`;
+        //let queryURL = `http://api.openweathermap.org/data/2.5/forecast?id=524901&APPID={APIKEY}`;
+
+        // accessing five day forecast
+        let forcastURL = `https://api.openweathermap.org/data/2.5/forecast?q=${title}&appid=${apiKey}`;
+        fetch(forcastURL)
+          .then(function(focastResponse) {
+            return focastResponse.json();
+          })
+          .then(function(focast) {
+            console.log(focast);
+            console.log(focast.list[0].main.temp);
+            console.log(focast.list[0].main.humidity);
+            let firstDayWeatherIconCode = focast.list[0].weather[0].icon;
+            let secondDayWeatherIconCode = focast.list[8].weather[0].icon;
+            let thirdDayWeatherIconCode = focast.list[16].weather[0].icon;
+            let fourthDayWeatherIconCode = focast.list[24].weather[0].icon;
+            let fifthDayWeatherIconCode = focast.list[32].weather[0].icon;
+            console.log(firstDayWeatherIconCode);
+            const firstIconUrl = `https://openweathermap.org/img/wn/${firstDayWeatherIconCode}@2x.png`;
+            let firstDayweatherIcon = `<img src='${firstIconUrl}'>`;
+            const secondIconUrl = `https://openweathermap.org/img/wn/${secondDayWeatherIconCode}@2x.png`;
+            let secondDayweatherIcon = `<img src='${secondIconUrl}'>`;
+            const thirdIconUrl = `https://openweathermap.org/img/wn/${thirdDayWeatherIconCode}@2x.png`;
+            let thirdDayweatherIcon = `<img src='${thirdIconUrl}'>`;
+            const fourthIconUrl = `https://openweathermap.org/img/wn/${fourthDayWeatherIconCode}@2x.png`;
+            let fourthDayweatherIcon = `<img src='${fourthIconUrl}'>`;
+            const fifthIconUrl = `https://openweathermap.org/img/wn/${fifthDayWeatherIconCode}@2x.png`;
+            let fifthDayweatherIcon = `<img src='${fifthIconUrl}'>`;
+            // first day icon
+
+            document.getElementById(
+              "firstDayIcon"
+            ).innerHTML = firstDayweatherIcon;
+
+            // second day icon
+
+            document.getElementById(
+              "secondDayIcon"
+            ).innerHTML = secondDayweatherIcon;
+
+            // third day icon
+
+            document.getElementById(
+              "thirdDayIcon"
+            ).innerHTML = thirdDayweatherIcon;
+
+            // fourth day icon
+
+            document.getElementById(
+              "fourthDayIcon"
+            ).innerHTML = fourthDayweatherIcon;
+
+            // fifth day icon
+
+            document.getElementById(
+              "fifthDayIcon"
+            ).innerHTML = fifthDayweatherIcon;
+
+            // first day temperature focast
+            let firstDayTempFocastInKelvin = focast.list[0].main.temp;
+            let firstDayTempFocastInCelsius =
+              firstDayTempFocastInKelvin - 273.15;
+            let FirstDayTemperature =
+              "Temperature: " + firstDayTempFocastInCelsius.toFixed(1) + "°C";
+            document.getElementById(
+              "firstDayTemperature"
+            ).textContent = FirstDayTemperature;
+
+            // second day temperature focast
+            let secondDayTempFocastInKelvin = focast.list[8].main.temp;
+            let secondDayTempFocastInCelsius =
+              secondDayTempFocastInKelvin - 273.15;
+            let secondDayTemperature =
+              "Temperature: " + secondDayTempFocastInCelsius.toFixed(1) + "°C";
+            document.getElementById(
+              "secondDayTemperature"
+            ).textContent = secondDayTemperature;
+
+            // third day temperature focast
+            let thirdDayTempFocastInKelvin = focast.list[16].main.temp;
+            let thirdDayTempFocastInCelsius =
+              thirdDayTempFocastInKelvin - 273.15;
+            let thirdDayTemperature =
+              "Temperature: " + thirdDayTempFocastInCelsius.toFixed(1) + "°C";
+            document.getElementById(
+              "thirdDayTemperature"
+            ).textContent = thirdDayTemperature;
+
+            // fourth day temperature focast
+            let fourthDayTempFocastInKelvin = focast.list[24].main.temp;
+            let fourthDayTempFocastInCelsius =
+              fourthDayTempFocastInKelvin - 273.15;
+            let fourthDayTemperature =
+              "Temperature: " + fourthDayTempFocastInCelsius.toFixed(1) + "°C";
+            document.getElementById(
+              "fourthDayTemperature"
+            ).textContent = fourthDayTemperature;
+            // fifth day temperature focast
+            let fifthDayTempFocastInKelvin = focast.list[32].main.temp;
+            let fifthDayTempFocastInCelsius =
+              fifthDayTempFocastInKelvin - 273.15;
+            let fifthDayTemperature =
+              "Temperature: " + fifthDayTempFocastInCelsius.toFixed(1) + "°C";
+            document.getElementById(
+              "fifthDayTemperature"
+            ).textContent = fifthDayTemperature;
+
+            // first day humidity
+            let firstDayhumidity =
+              "Humidity: " + focast.list[0].main.humidity + "%";
+            document.getElementById(
+              "firstDayHumidity"
+            ).textContent = firstDayhumidity;
+
+            // second day humidity
+            let secondDayhumidity =
+              "Humidity: " + focast.list[8].main.humidity + "%";
+            document.getElementById(
+              "secondDayHumidity"
+            ).textContent = secondDayhumidity;
+
+            // third day humidity
+            let thirdDayhumidity =
+              "Humidity: " + focast.list[16].main.humidity + "%";
+            document.getElementById(
+              "thirdDayHumidity"
+            ).textContent = thirdDayhumidity;
+
+            // fourth day humidity
+            let fourthDayhumidity =
+              "Humidity: " + focast.list[24].main.humidity + "%";
+            document.getElementById(
+              "fourthDayHumidity"
+            ).textContent = fourthDayhumidity;
+
+            // fifth day humidity
+            let fifthDayhumidity =
+              "Humidity: " + focast.list[32].main.humidity + "%";
+            document.getElementById(
+              "fifthDayHumidity"
+            ).textContent = fifthDayhumidity;
+
+            // this block of code displays the hidden element on page load
+
+            document.getElementById("first").style.display = "block";
+            document.getElementById("second").style.display = "block";
+            document.getElementById("third").style.display = "block";
+            document.getElementById("fourth").style.display = "block";
+            document.getElementById("fifth").style.display = "block";
+            document.getElementById("focast").style.display = "block";
+
+            // date for the forcast
+            let dayOne = focast.list[0].dt_txt;
+            console.log(dayOne);
+            let dayTwo = focast.list[8].dt_txt;
+            let dayThree = focast.list[16].dt_txt;
+            let dayFour = focast.list[24].dt_txt;
+            let dayFive = focast.list[32].dt_txt;
+
+            document.getElementById("dayOne").innerHTML = dayOne;
+            document.getElementById("dayTwo").innerHTML = dayTwo;
+            document.getElementById("dayThree").innerHTML = dayThree;
+            document.getElementById("dayFour").innerHTML = dayFour;
+            document.getElementById("dayFive").innerHTML = dayFive;
+          });
+
+        // accessing the api for weather
+
+        fetch(queryURL)
+          .then(function(result) {
+            return result.json();
+          })
+          .then(function(data) {
+            //let weatherIconCode = data.weather[0].icon;
+            //let iconUrl =
+            //"http://openweathermap.org/img/w/" + iconCode + ".png";
+            let weatherIconCode = data.weather[0].icon;
+            let tempk = data.main.temp;
+            let tempc = tempk - 273.15;
+            //0.55
+            //console.log(tempc);
+
+            //let temps = temp;
+            let temperature = "Temperature: " + tempc.toFixed(1) + "°C";
+            let humidity = "Humidity: " + data.main.humidity + "%";
+            let windSpeed = "Wind Speed: " + data.wind.speed + "MPH";
+            iconUrl = `https://openweathermap.org/img/wn/${weatherIconCode}@2x.png`;
+            weatherIcon = `<img src='${iconUrl}'>`;
+            document.getElementById("result").innerHTML =
+              title + " " + currentDate + weatherIcon;
+            document.getElementById("temperature").textContent = temperature;
+            document.getElementById("humidity").textContent = humidity;
+            document.getElementById("wind-speed").textContent = windSpeed;
+            //console.log(data);
+            //console.log(data.main.temp);
+            //console.log(data.main.humidity);
+            // console.log(data.weather[0].icon);
+            //console.log(data.wind.speed);
+            //console.log(data.coord.lon);
+            //console.log(data.coord.lat);
+
+            let lon = data.coord.lon;
+            let lat = data.coord.lat;
+            //apiKey = "9d1ed7a3283bdd5ad280c6313828f1ed";
+            let queryUvURL = `https://api.openweathermap.org/data/2.5/uvi?appid=${apiKey}&lat=${lat}&lon=${lon}`;
+
+            // accesing the api for UV
+            fetch(queryUvURL)
+              .then(function(response) {
+                return response.json();
+              })
+              .then(function(uvData) {
+                console.log(uvData);
+                console.log(uvData.value);
+                let uvIndex = uvData.value;
+                document.getElementById(
+                  "uv-index"
+                ).innerHTML = `<p>UV Index:<div class="btn" style="background-color:tomato; color:white">${uvIndex}</div></p>`;
+              });
+            //console.log(iconurl);
+
+            //cityViewed.textContent = JSON.stringify(city, null, 2);
+            //document.getElementById("citysearched").textContent = data;
+
+            // JSON.stringify takes additional parameters to more nicely format the results
+            // @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
+          });
+      }
+
+      // create a function to dynamically create element with JS
+      function renderListOfCity() {
+        // get a handle for the city-viewed div
+        cityViewed = document.getElementById("city-viewed");
+        cityViewed.innerHTML = "";
+        // then dynamicaly generate a list for each city in the array.
+        let ul = document.createElement("ul");
+        //let button = document.createElement("button");
+        //button.classList.add("btn btn-default");
+        ul.classList.add("list-group", "list-group-flush");
+        // Delete the city buttons prior to adding new city buttons
+        // (this is necessary otherwise we will have repeat buttons)
+        // Loop through the array of city searched titles
+        citySearched.forEach(function(title) {
+          let li = document.createElement("li");
+          li.classList.add("list-group-item");
+          //li.setAttribute("city-title", title);
+          li.textContent = title;
+          // add a click event listener to call the `displayCityInfo` function
+          li.addEventListener("click", displayCityInfo);
+          ul.appendChild(li);
+        });
+        // then insert the ul into the DOM
+        cityViewed.appendChild(ul);
+      }
+
+      // add event listener to the search button
+      document
+        .getElementById("addCity")
+        .addEventListener("click", function(event) {
+          // event.preventDefault() prevents the form from trying to submit itself.
+          // We're using a form so that the user can hit enter instead of
+          // clicking the button if they want
+          event.preventDefault();
+          // This line will grab the text from the input box
+          let title = document.getElementById("userInput").value.trim();
+          // The city title from the textbox is then added to our array
+
+          citySearched.push(title);
+          // save to local storage
+          localStorage.setItem("citySearched", JSON.stringify(citySearched));
+          //Syntax for READING data from localStorage:
+
+          // calling renderListOfCity which handles the processing of our citySearched array
+          displayCityInfo();
+          renderListOfCity();
+
+          //document.getElementById("userInput").value = "";
+          console.log(citySearched);
+        });
+      //document.getElementById("clear").addEventListener("click", function() {
+      //document.getElementById("city-viewed").textContent = "";
+      //citySearched = [];
+      // });
+    </script>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
